@@ -62,8 +62,8 @@ const HP_DATA = {
   INTJ: { character:"Albus Dumbledore",       house:"RAVENCLAW",  houseReason:"Like Dumbledore, the Architect operates several moves ahead — wielding knowledge and foresight as their greatest tools." },
   INTP: { character:"Luna Lovegood",          house:"RAVENCLAW",  houseReason:"Luna's wonderfully unconventional mind and comfort in intellectual territory others find baffling is pure Logician energy." },
   ENTP: { character:"Fred and George Weasley", house:"RAVENCLAW", houseReason:"The twins relentless inventiveness and love of testing every boundary makes them natural Debaters — ideas first, consequences later." },
-  ENTJ: { character:"Minerva McGonagall",     house:"GRYFFINDOR", houseReason:"McGonagall commands every room she enters — direct, fiercely high-standards, and utterly decisive. The Commander in her natural habitat." },
-  INFJ: { character:"Remus Lupin",            house:"HUFFLEPUFF", houseReason:"Lupin's quiet wisdom, deep empathy and unwavering moral compass make him the Advocate — nurturing others even at personal cost." },
+  ENTJ: { character:["Minerva McGonagall","Kingsley Shacklebolt","Olympe Maxime","Bartemius Crouch Sr."][Math.floor(Math.random()*4)], house:"GRYFFINDOR", houseReason:"A natural Commander — direct, decisive, and fiercely high-standards. Built to lead from the front." },
+  ESTJ: { character:["Percy Weasley","Cornelius Fudge","Amelia Bones","Arthur Weasley"][Math.floor(Math.random()*4)], house:"GRYFFINDOR", houseReason:"The ultimate Executive — structured, reliable, and always making sure everything runs properly." },
   INFP: { character:"Neville Longbottom",     house:"HUFFLEPUFF", houseReason:"Neville leads with heart and quiet conviction. Underestimated, deeply values-driven, and more powerful than anyone expects." },
   ENFJ: { character:"Albus Dumbledore",       house:"GRYFFINDOR", houseReason:"The Protagonist is the ultimate people-leader — inspiring loyalty, seeing potential in everyone, always putting the team first." },
   ENFP: { character:"Rubeus Hagrid",          house:"HUFFLEPUFF", houseReason:"Hagrid's boundless enthusiasm, warm heart and total belief in the underdog is Campaigner energy at its most loveable." },
@@ -77,7 +77,15 @@ const HP_DATA = {
   ESFP: { character:"Ron Weasley",            house:"GRYFFINDOR", houseReason:"Ron brings the energy, the laughs and the heart. The Entertainer who lifts every room and makes the impossible feel fun." },
 };
 
-function getHPData(code) { return HP_DATA[code] || HP_DATA["ENFP"]; }
+function getHPData(code, submissionId) {
+  const ENTJ_chars = ["Minerva McGonagall","Kingsley Shacklebolt","Olympe Maxime","Bartemius Crouch Sr."];
+  const ESTJ_chars = ["Percy Weasley","Cornelius Fudge","Amelia Bones","Arthur Weasley"];
+  const idx = submissionId ? submissionId.charCodeAt(0) % 4 : 0;
+  if (code === "ENTJ") return { ...HP_DATA["ENTJ"], character: ENTJ_chars[idx] };
+  if (code === "ESTJ") return { ...HP_DATA["ESTJ"], character: ESTJ_chars[idx] };
+  return HP_DATA[code] || HP_DATA["ENFP"];
+}
+
 
 function getColourEnergy(result) {
   if (!result) return { primary:COLOUR_ENERGY.BLUE, secondary:COLOUR_ENERGY.GREEN, primaryKey:"BLUE", secondaryKey:"GREEN" };
@@ -134,7 +142,7 @@ async function removeSubmission(id){
 function exportCSV(submissions){
   const H=["Name","Email","Department","Type","Code","E%","N%","T%","J%","A%","Primary Colour","Secondary Colour","HP House","HP Character","Strengths","Communication","Creative Summary","Submitted"];
   const rows=submissions.map(s=>{
-    const r=s.result_data,ce=getColourEnergy(r),hp=getHPData(r.code),house=HP_HOUSES[hp.house];
+    const r=s.result_data,ce=getColourEnergy(r),hp=getHPData(r.code,s.id),house=HP_HOUSES[hp.house];
     return[s.name,s.email,s.department||"—",r.personality.title,r.fullCode,
       r.EI.dir==="E"?r.EI.pct:100-r.EI.pct,r.NS.dir==="N"?r.NS.pct:100-r.NS.pct,
       r.TF.dir==="T"?r.TF.pct:100-r.TF.pct,r.JP.dir==="J"?r.JP.pct:100-r.JP.pct,
@@ -521,7 +529,7 @@ function AdminDashboard({onExit}){
               </thead>
               <tbody>
                 {submissions.map((s,idx)=>{
-                  const r=s.result_data,ce=getColourEnergy(r),hp=getHPData(r.code),house=HP_HOUSES[hp.house];
+                  const r=s.result_data,ce=getColourEnergy(r),hp=getHPData(r.code,s.id),house=HP_HOUSES[hp.house];
                   return(
                     <tr key={s.id} style={{background:idx%2===0?BRAND.white:BRAND.offWhite,borderBottom:`1px solid ${BRAND.mist}`}}>
                       <td style={{padding:"10px 14px",fontWeight:700,color:BRAND.navy,whiteSpace:"nowrap"}}>
@@ -555,7 +563,7 @@ function AdminDashboard({onExit}){
           <div style={{display:"grid",gap:12}}>
             {filtered.map(s=>{
               const isOpen=expanded===s.id,r=s.result_data;
-              const ce=getColourEnergy(r),hp=getHPData(r.code),house=HP_HOUSES[hp.house];
+              const ce=getColourEnergy(r),hp=getHPData(r.code,s.id),house=HP_HOUSES[hp.house];
               const traits=[
                 {label:r.EI.dir==="E"?"Extraverted":"Introverted",pct:r.EI.pct,color:BRAND.navyLight},
                 {label:r.NS.dir==="N"?"Intuitive":"Observant",pct:r.NS.pct,color:"#4A9B6F"},
