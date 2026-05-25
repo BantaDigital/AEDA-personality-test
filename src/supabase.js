@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = 'https://egsednfetxvhzptiptek.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVnc2VkbmZldHh2aHpwdGlwdGVrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2NDczNjIsImV4cCI6MjA5NTIyMzM2Mn0.TqjwqxchRmhcybiEf-XPLXp7IT7l-kZYcPGaMGU8kHc';
-
-export const supabase = createClient(supabaseUrl, supabaseKey);
+export const supabase = createClient(
+  'https://egsednfetxvhzptiptek.supabase.co',
+  'sb_publishable_i4lMFm9iOE5eN68-ZVa8Lg_MLztLbF5'
+);
